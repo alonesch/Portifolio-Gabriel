@@ -15,6 +15,7 @@
 body {
     height: 100vh;
     background-color: var(--bg);
+    background-image: radial-gradient(circle at center,  #382020,#211111);
     color: var(--bege);
     box-sizing: border-box;
 }
@@ -36,11 +37,10 @@ body {
 .hero {
     flex: 1.2;
     display: flex;
-    justify-content: space-between;
 }
 
 .hero img {
-    width: 400px;
+    width: 100%;
     height: auto;
     border-radius: 12px;
     border: 3px solid var(--laranja);
@@ -50,6 +50,7 @@ body {
     font-family: "Quicksand", sans-serif;
     font-size: 42px;
     font-weight: 400;
+    text-wrap: nowrap;
 
 }
 
@@ -69,9 +70,18 @@ body {
     font-size: 24px;
 }
 
+.actions_text{
+    display: flex;
+    color: var(--bege);
+    justify-content: center;
+    font-family: "Quicksand", sans-serif;
+    font-size: 32px;
+}
+
+
 .actions {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     justify-content: space-between;
     gap: 10px;
     align-items: center;
@@ -89,12 +99,7 @@ body {
     font-family: "Red Hat Display", sans-serif;
     font-weight: 900;
     font-size: 24px;
-    font-style: bold;
-}
-
-.actions_text{
-    font-family: "Quicksand", sans-serif;
-    font-size: 32px;
+    
 }
 
 .site-footer {
@@ -104,5 +109,4 @@ body {
     font-family: "Red Hat Display", sans-serif;
     font-weight: 900;
     font-size: 24px;
-    font-style: bold;
 }
