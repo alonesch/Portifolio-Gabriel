@@ -15,7 +15,7 @@
 body {
     height: 100vh;
     background-color: var(--bg);
-    background-image: radial-gradient(circle at center,  #382020,#211111);
+    background-image: radial-gradient(circle at center, #382020, #211111);
     color: var(--bege);
     box-sizing: border-box;
 }
@@ -70,7 +70,7 @@ body {
     font-size: 24px;
 }
 
-.actions_text{
+.actions_text {
     display: flex;
     color: var(--bege);
     justify-content: center;
@@ -99,7 +99,7 @@ body {
     font-family: "Red Hat Display", sans-serif;
     font-weight: 900;
     font-size: 24px;
-    
+
 }
 
 .site-footer {
