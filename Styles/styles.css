@@ -120,16 +120,17 @@ body {
     font-family: var(--RedHat);
     font-weight: 800;
     font-size: clamp(1rem, 2vw + 0.5rem, 2rem);
+    transition: all 0.2s ease;
 
 
 
 }
 
 .btn:hover {
+    
     background-color: var(--bg);
-    padding: 3%;
     border: 2px solid var(--laranja);
-    cursor: pointer;
+    transform: scale(1.03);
 }
 
 
@@ -144,6 +145,7 @@ body {
     font-family: var(--RedHat);
     font-weight: 900;
     font-size: 0.625rem;
+    justify-content: center;
 
 }
 
@@ -172,13 +174,16 @@ body {
         flex-direction: flex;
         padding: 5px;
     }
+
     .intro {
         width: auto;
     }
+
     .actions {
         flex-direction: row;
         justify-content: center;
     }
+
     .actions_text {
         justify-content: center;
     }
