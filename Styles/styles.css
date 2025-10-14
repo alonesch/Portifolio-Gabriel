@@ -1,10 +1,14 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Quicksand:wght@700&family=Red+Hat+Display:ital,wght@0,300..900;1,300..900&display=swap');
 
 :root {
+    /*cores*/
     --bg: #211111;
     --bege: #ECD6AF;
     --laranja: #CA7F0E;
-
+    /*font-family*/
+    --Quicksand: "Quicksand", sans-serif;
+    --Montserrat: "Montserrat", sans-serif;
+    --RedHat: "Red Hat Display", sans-serif;
 }
 
 * {
@@ -13,19 +17,25 @@
 }
 
 body {
-    /* height: 100vh; */
+
     box-sizing: border-box;
-    /*background-color: var(--bg);*/
     background-image: radial-gradient(circle at center, #382020, #211111);
     color: var(--bege);
 }
 
 .container {
-    margin: 8% 15%;
+    margin: 3% 15%;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 82px;
 }
+
+
+.site-header {
+    padding: 2% 0% 0% 15%;
+}
+
 
 .site-header_Menu {
     display: flex;
@@ -37,31 +47,28 @@ body {
     gap: 30px;
     text-decoration: none;
     color: var(--laranja);
-    font-family: "Quicksand", sans-serif;
-    font-size: 24px;
+    font-family: var(--Quicksand);
+    font-size: 1.125rem;
     font-weight: 600;
 
 }
 
 .site-header_Menu_link:hover {
     color: var(--bege);
-    
+
 }
 
-.site-header {
-    padding: 2% 0% 0% 15%;
-}
 
 .intro {
-    width: 615px;
+    width: 50%;
     display: flex;
     flex-direction: column;
     gap: 40px;
 }
 
 .intro__title {
-    font-size: 36px;
-    font-family: "Quicksand", sans-serif;
+    font-size: 2.25rem;
+    font-family: var(--Quicksand);
     padding: 0 0 0 0;
 }
 
@@ -70,21 +77,21 @@ body {
 }
 
 .intro__subtitle {
-    font-family: "Quicksand", sans-serif;
-    font-size: 32px;
+    font-family: var(--Quicksand);
+    font-size: 2rem;
 }
 
 .intro__text1 {
-    font-family: "Montserrat", sans-serif;
-    font-size: 24px;
+    font-family: var(--Montserrat);
+    font-size: 1.5rem;
 }
 
 .actions_text {
     display: flex;
     color: var(--bege);
     justify-content: center;
-    font-family: "Quicksand", sans-serif;
-    font-size: 32px;
+    font-family: var(--Quicksand);
+    font-size: 2rem;
 }
 
 
@@ -104,32 +111,39 @@ body {
     justify-content: center;
     border: 2px solid var(--bege);
     gap: 14px;
-    width: 378px;
+    width: 50%;
     text-align: center;
-    border-radius: 8px;
-    padding: 21.5px 0;
+    border-radius: 12px;
+    padding: 1.2rem 2rem;
     text-decoration: none;
     color: var(--laranja);
-    font-family: "Red Hat Display", sans-serif;
-    font-weight: 900;
-    font-size: 32px;
+    font-family: var(--RedHat);
+    font-weight: 800;
+    font-size: clamp(1rem, 2vw + 0.5rem, 2rem);
+
+
 
 }
 
 .btn:hover {
-    background-color: #382020;
+    background-color: var(--bg);
     padding: 3%;
     border: 2px solid var(--laranja);
     cursor: pointer;
+}
+
+
+.banner1 {
+    width: 50%;
 }
 
 .site-footer {
     text-align: center;
     padding: 24px 0;
     color: var(--laranja);
-    font-family: "Red Hat Display", sans-serif;
+    font-family: var(--RedHat);
     font-weight: 900;
-    font-size: 24px;
+    font-size: 0.625rem;
 
 }
 
@@ -144,3 +158,28 @@ body {
 }
 
 
+
+@media (max-width: 1200px) {
+    .site-header {
+        padding: 10%;
+    }
+
+    .site-header_Menu {
+        justify-content: center;
+    }
+
+    .container {
+        flex-direction: flex;
+        padding: 5px;
+    }
+    .intro {
+        width: auto;
+    }
+    .actions {
+        flex-direction: row;
+        justify-content: center;
+    }
+    .actions_text {
+        justify-content: center;
+    }
+}
