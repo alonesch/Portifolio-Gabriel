@@ -1,0 +1,146 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Quicksand:wght@700&family=Red+Hat+Display:ital,wght@0,300..900;1,300..900&display=swap');
+
+:root {
+    --bg: #211111;
+    --bege: #ECD6AF;
+    --laranja: #CA7F0E;
+
+}
+
+* {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    /* height: 100vh; */
+    box-sizing: border-box;
+    /*background-color: var(--bg);*/
+    background-image: radial-gradient(circle at center, #382020, #211111);
+    color: var(--bege);
+}
+
+.container {
+    margin: 8% 15%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.site-header_Menu {
+    display: flex;
+    gap: 30px;
+}
+
+.site-header_Menu_link {
+    display: flex;
+    gap: 30px;
+    text-decoration: none;
+    color: var(--laranja);
+    font-family: "Quicksand", sans-serif;
+    font-size: 24px;
+    font-weight: 600;
+
+}
+
+.site-header_Menu_link:hover {
+    color: var(--bege);
+    
+}
+
+.site-header {
+    padding: 2% 0% 0% 15%;
+}
+
+.intro {
+    width: 615px;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+}
+
+.intro__title {
+    font-size: 36px;
+    font-family: "Quicksand", sans-serif;
+    padding: 0 0 0 0;
+}
+
+.mark-title {
+    color: var(--laranja);
+}
+
+.intro__subtitle {
+    font-family: "Quicksand", sans-serif;
+    font-size: 32px;
+}
+
+.intro__text1 {
+    font-family: "Montserrat", sans-serif;
+    font-size: 24px;
+}
+
+.actions_text {
+    display: flex;
+    color: var(--bege);
+    justify-content: center;
+    font-family: "Quicksand", sans-serif;
+    font-size: 32px;
+}
+
+
+.actions {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 10px;
+    align-items: center;
+
+}
+
+
+.btn {
+    /* background-color: var(--bege); */
+    display: flex;
+    justify-content: center;
+    border: 2px solid var(--bege);
+    gap: 14px;
+    width: 378px;
+    text-align: center;
+    border-radius: 8px;
+    padding: 21.5px 0;
+    text-decoration: none;
+    color: var(--laranja);
+    font-family: "Red Hat Display", sans-serif;
+    font-weight: 900;
+    font-size: 32px;
+
+}
+
+.btn:hover {
+    background-color: #382020;
+    padding: 3%;
+    border: 2px solid var(--laranja);
+    cursor: pointer;
+}
+
+.site-footer {
+    text-align: center;
+    padding: 24px 0;
+    color: var(--laranja);
+    font-family: "Red Hat Display", sans-serif;
+    font-weight: 900;
+    font-size: 24px;
+
+}
+
+.site-footer a {
+    color: inherit;
+    text-decoration: none;
+
+}
+
+.site-footer :hover {
+    text-decoration: underline;
+}
+
+
