@@ -1,4 +1,4 @@
-import Banner1 from '../assets/banner1'
+import Banner1 from '../assets/Banner1.png'
 function Banner(){
     return (
 
