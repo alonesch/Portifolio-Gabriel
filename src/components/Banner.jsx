@@ -1,8 +1,9 @@
+import Banner1 from '../assets/banner1'
 function Banner(){
     return (
 
     <figure className="banner1">
-    <img src="../src/assets/asset1.png" alt="Cliente com corte masculino estilizado" />
+    <img src={Banner1} alt="Cliente com corte masculino estilizado" />
 </figure>
     );
 }

@@ -1,3 +1,5 @@
+import Wpp from '../assets/Wpp.png';
+import Insta from '../assets/Insta.png'
 function Actions() {
     
 
@@ -5,11 +7,11 @@ function Actions() {
 
   <div className="actions">
       <a class="btn" href="https://www.instagram.com/rodrigues_gabriel051/" target="_blank">
-          <img src="../assets/insta.png" alt="Instagram" class="icon" />
+          <img src={Insta} alt="Instagram" className="icon" />
           Instagram
       </a>
       <a class="btn" href="https://wa.link/tyi17g" target="_blank">
-          <img src="../assets/wpp.png" alt="WhatsApp" class="icon" />
+          <img src={Wpp} alt="WhatsApp" className="icon" />
           WhatsApp
       </a>
 
