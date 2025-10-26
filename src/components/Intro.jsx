@@ -4,7 +4,7 @@ function Intro() {
 
         <section className="intro">
             <h1 className="intro__title">
-                Porque cabelo bem feito
+                Porque cabelo bem feito&nbsp;
                 <strong className="mark-title">MUDA TUDO!!!</strong>
             </h1>
 
@@ -18,21 +18,13 @@ function Intro() {
             <p className="intro__text1">Não importa se é aquele corte básico pra manter a firmeza ou algo mais ousado pra
                 mudar o visual.
                 O foco é sempre deixar o cabelo alinhado e o cliente satisfeito.</p>
+            <h2 className="intro__subtitle">A virada de chave</h2>
 
-            <h2 className="actions_text">Marque um horário!</h2>
+            <p className="intro__text1">Já carreguei caminhão no Magazine Luiza, amarrei carro em cegonha na GM e aprendi que trampo bom é aquele feito com vontade.</p>
 
-            <div className="actions">
-                <a className="btn" href="https://www.instagram.com/rodrigues_gabriel051/" target="_blank">
-                    <img src="/insta.png" alt="Instagram" className="icon" />
-                    Instagram
-                </a>
-                <a className="btn" href="https://wa.link/tyi17g" target="_blank">
-                    <img src="/wpp.png" alt="WhatsApp" className="icon" />
-                    WhatsApp
-                </a>
-            </div>
-
+            <p className="intro__text1">Hoje corto cabelo com o mesmo foco: <strong className="mark-title">deixar o cliente na régua e com autoestima lá em cima.</strong></p>
         </section>
+
     );
 }
 

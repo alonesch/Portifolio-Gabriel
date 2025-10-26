@@ -1,12 +1,24 @@
-import Banner1 from '../assets/Banner1.png'
-function Banner(){
-    return (
+import { useState, useEffect } from "react";
+import BannerDesktop from "../assets/banner-desktop.png";
+import BannerMobile from "../assets/banner-mobile.png";
 
-    <figure className="Banner1">
-    <img src={Banner1} alt="Cliente com corte masculino estilizado" />
-</figure>
-    );
+function Banner() {
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 600);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 600);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  return (
+    <figure className="banner1">
+      <img
+        src={isMobile ? BannerMobile : BannerDesktop}
+        alt="logo"
+      />
+    </figure>
+  );
 }
-
 
 export default Banner;

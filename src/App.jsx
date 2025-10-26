@@ -1,19 +1,38 @@
 import Header from "./components/Header";
 import Intro from "./components/Intro";
-import Banner from "./components/Banner";
-import Actions from "./components/Actions";
+import Gallery from "./components/Gallery";
+import Booking from "./components/Booking";
+import Branding from "./components/Branding";
+import MusicPlayer from "./components/MusicPlayer";
 import Footer from "./components/Footer";
+import Banner from "./components/Banner";
 
 function App() {
-  return(
+  return (
     <>
+      <MusicPlayer />
       <Header />
-      <main className="container">
-        <Intro />
-        <Banner />
+
+      <main className="main-layout">
+        <div className="container" id="inicio">
+          <Intro />
+          <Banner />
+        </div>
+
+        <section id="galeria">
+          <Gallery />
+        </section>
+
+        <section id="agendamento">
+          <Booking />
+        </section>
+
+        <Branding />
       </main>
+
       <Footer />
     </>
   );
 }
-export default App
+
+export default App;
