@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import "./Admin.css";
@@ -8,60 +8,41 @@ const API_URL = import.meta.env.VITE_API_URL;
 const Admin = ({ onVoltar, onLogout }) => {
   const [agendamentos, setAgendamentos] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [authChecked, setAuthChecked] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [toast, setToast] = useState(null);
-
   const location = useLocation();
   const navigate = useNavigate();
-  const redirectedRef = useRef(false);
 
   const [tipo, setTipo] = useState(() =>
     location.pathname.includes("historico") ? "historico" : "ativos"
   );
+
   useEffect(() => {
     setTipo(location.pathname.includes("historico") ? "historico" : "ativos");
   }, [location.pathname]);
 
-  const [paginaAtivos, setPaginaAtivos] = useState(1);
-  const [paginaHistorico, setPaginaHistorico] = useState(1);
-  const itensPorPagina = 5;
-
-  // ✅ Detecta resize
+  // 🔹 Detecta mobile
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // ✅ Checa autenticação apenas uma vez
+  // 🔹 Busca agendamentos
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    const usuarioId = localStorage.getItem("usuarioId");
-
-    if (!token || !usuarioId) {
-      navigate("/login", { replace: true });
-    } else {
-      setAuthChecked(true);
-    }
-  }, [navigate]);
-
-  // ✅ Só busca agendamentos após confirmar autenticação
-  useEffect(() => {
-    if (!authChecked) return;
-
-    let alive = true;
-
     const fetchAgendamentos = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        const usuarioId = localStorage.getItem("usuarioId");
+      const token = localStorage.getItem("token");
+      const usuarioId = localStorage.getItem("usuarioId");
 
+      if (!token || !usuarioId) {
+        navigate("/login", { replace: true });
+        return;
+      }
+
+      try {
         const response = await axios.get(
           `${API_URL}/api/agendamento/barbeiro/${usuarioId}`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
+          { headers: { Authorization: `Bearer ${token}` } }
         );
 
         const data = response.data?.$values || response.data || [];
@@ -75,30 +56,29 @@ const Admin = ({ onVoltar, onLogout }) => {
           servicos: a.servicos?.$values || a.servicos || [],
         }));
 
-        if (alive) setAgendamentos(parsed);
+        setAgendamentos(parsed);
       } catch (error) {
         console.error("Erro ao carregar agendamentos:", error);
-        if (error.response?.status === 401 && !redirectedRef.current) {
-          redirectedRef.current = true;
+        if (error.response?.status === 401) {
           localStorage.removeItem("token");
+          localStorage.removeItem("autenticado");
           navigate("/login", { replace: true });
         }
       } finally {
-        if (alive) setLoading(false);
+        setLoading(false);
       }
     };
 
     fetchAgendamentos();
-    return () => {
-      alive = false;
-    };
-  }, [authChecked, navigate]);
+  }, [navigate]);
 
+  // 🔹 Toast
   const showToast = (mensagem, tipo = "info") => {
     setToast({ mensagem, tipo });
     setTimeout(() => setToast(null), 3000);
   };
 
+  // 🔹 Atualiza status
   const atualizarStatus = async (id, novoStatus) => {
     try {
       const token = localStorage.getItem("token");
@@ -132,6 +112,7 @@ const Admin = ({ onVoltar, onLogout }) => {
     }
   };
 
+  // 🔹 Filtros e paginação
   const ativos = agendamentos.filter((a) =>
     ["Pendente", "Confirmado"].includes(a.status)
   );
@@ -142,67 +123,28 @@ const Admin = ({ onVoltar, onLogout }) => {
   );
 
   const lista = tipo === "historico" ? historico : ativos;
-  const paginaAtual = tipo === "historico" ? paginaHistorico : paginaAtivos;
-  const setPaginaAtual =
-    tipo === "historico" ? setPaginaHistorico : setPaginaAtivos;
-
+  const itensPorPagina = 5;
+  const [pagina, setPagina] = useState(1);
   const totalPaginas = Math.ceil(lista.length / itensPorPagina);
-  const indiceInicial = (paginaAtual - 1) * itensPorPagina;
-  const paginaItens = lista.slice(indiceInicial, indiceInicial + itensPorPagina);
+  const paginaItens = lista.slice((pagina - 1) * itensPorPagina, pagina * itensPorPagina);
 
-  const mudarPagina = (novaPagina) => {
-    if (novaPagina >= 1 && novaPagina <= totalPaginas) setPaginaAtual(novaPagina);
-  };
-
-  const getBotoes = (a) => {
-    const botoes = [];
-    if (a.status === "Pendente") {
-      botoes.push(
-        <button key="confirmar" onClick={() => atualizarStatus(a.id, 2)}>
-          ✅ Confirmar
-        </button>
-      );
-      botoes.push(
-        <button key="cancelar" onClick={() => atualizarStatus(a.id, 6)}>
-          ❌ Cancelar
-        </button>
-      );
-    } else if (a.status === "Confirmado") {
-      botoes.push(
-        <button key="finalizar" onClick={() => atualizarStatus(a.id, 7)}>
-          🏁 Finalizar
-        </button>
-      );
-      botoes.push(
-        <button key="cancelar" onClick={() => atualizarStatus(a.id, 6)}>
-          ❌ Cancelar
-        </button>
-      );
-    }
-    return botoes;
-  };
-
+  // 🔹 Navegação
   const handleVoltar = () => {
     navigate("/");
     onVoltar?.();
   };
 
   const handleLogoff = () => {
+    localStorage.removeItem("autenticado");
     localStorage.removeItem("token");
+    localStorage.removeItem("usuarioId");
+    localStorage.removeItem("usuarioNome");
     onLogout?.();
     showToast("Sessão encerrada com sucesso 👋", "sucesso");
     setTimeout(() => navigate("/login", { replace: true }), 800);
   };
 
-  // 🔄 Enquanto verifica o auth (impede tela branca)
-  if (!authChecked) {
-    return (
-      <div className="admin-page">
-        <p className="texto-centro">Verificando autenticação...</p>
-      </div>
-    );
-  }
-
+  // 🔹 Renderização
   return (
     <div className="admin-page">
       <div className="top-buttons">
@@ -258,16 +200,25 @@ const Admin = ({ onVoltar, onLogout }) => {
                         {(a.servicos || []).map((s) => s.nomeServico).join(", ")}
                       </td>
                       <td>{new Date(a.dataHora).toLocaleString("pt-BR")}</td>
-                      <td
-                        className={`status ${a.status
-                          .toLowerCase()
-                          .replace(/\s/g, "-")}`}
-                      >
+                      <td className={`status ${a.status.toLowerCase().replace(/\s/g, "-")}`}>
                         {a.status}
                       </td>
                       <td>{a.observacao || "-"}</td>
                       <td>
-                        <div className="acoes-admin">{getBotoes(a)}</div>
+                        <div className="acoes-admin">
+                          {a.status === "Pendente" && (
+                            <>
+                              <button onClick={() => atualizarStatus(a.id, 2)}>✅ Confirmar</button>
+                              <button onClick={() => atualizarStatus(a.id, 6)}>❌ Cancelar</button>
+                            </>
+                          )}
+                          {a.status === "Confirmado" && (
+                            <>
+                              <button onClick={() => atualizarStatus(a.id, 7)}>🏁 Finalizar</button>
+                              <button onClick={() => atualizarStatus(a.id, 6)}>❌ Cancelar</button>
+                            </>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -279,9 +230,22 @@ const Admin = ({ onVoltar, onLogout }) => {
                   <p><strong>Cliente:</strong> {a.cliente}</p>
                   <p><strong>Serviços:</strong> {(a.servicos || []).map((s) => s.nomeServico).join(", ")}</p>
                   <p><strong>Data:</strong> {new Date(a.dataHora).toLocaleString("pt-BR")}</p>
-                  <p><strong>Status:</strong> <span className={`status ${a.status.toLowerCase().replace(/\s/g, "-")}`}>{a.status}</span></p>
+                  <p><strong>Status:</strong> {a.status}</p>
                   <p><strong>Obs:</strong> {a.observacao || "-"}</p>
-                  <div className="acoes-admin">{getBotoes(a)}</div>
+                  <div className="acoes-admin">
+                    {a.status === "Pendente" && (
+                      <>
+                        <button onClick={() => atualizarStatus(a.id, 2)}>✅ Confirmar</button>
+                        <button onClick={() => atualizarStatus(a.id, 6)}>❌ Cancelar</button>
+                      </>
+                    )}
+                    {a.status === "Confirmado" && (
+                      <>
+                        <button onClick={() => atualizarStatus(a.id, 7)}>🏁 Finalizar</button>
+                        <button onClick={() => atualizarStatus(a.id, 6)}>❌ Cancelar</button>
+                      </>
+                    )}
+                  </div>
                 </div>
               ))
             )
@@ -294,19 +258,11 @@ const Admin = ({ onVoltar, onLogout }) => {
 
         {lista.length > itensPorPagina && (
           <div className="paginacao">
-            <button
-              onClick={() => mudarPagina(paginaAtual - 1)}
-              disabled={paginaAtual === 1}
-            >
+            <button onClick={() => setPagina(pagina - 1)} disabled={pagina === 1}>
               ← Anterior
             </button>
-            <span>
-              Página {paginaAtual} de {totalPaginas}
-            </span>
-            <button
-              onClick={() => mudarPagina(paginaAtual + 1)}
-              disabled={paginaAtual === totalPaginas}
-            >
+            <span>Página {pagina} de {totalPaginas}</span>
+            <button onClick={() => setPagina(pagina + 1)} disabled={pagina === totalPaginas}>
               Próxima →
             </button>
           </div>
