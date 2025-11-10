@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -8,10 +9,8 @@ const Admin = ({ onVoltar, onLogout }) => {
   const [loading, setLoading] = useState(true);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [toast, setToast] = useState(null);
-
   const location = useLocation();
   const navigate = useNavigate();
-
   const [tipo, setTipo] = useState(() =>
     location.pathname.includes("historico") ? "historico" : "ativos"
   );
@@ -58,7 +57,6 @@ const Admin = ({ onVoltar, onLogout }) => {
         setLoading(false);
       }
     };
-
     fetchAgendamentos();
   }, []);
 
@@ -77,16 +75,16 @@ const Admin = ({ onVoltar, onLogout }) => {
         prev.map((a) =>
           a.id === id
             ? {
-                ...a,
-                status:
-                  novoStatus === 2
-                    ? "Confirmado"
-                    : novoStatus === 6
+              ...a,
+              status:
+                novoStatus === 2
+                  ? "Confirmado"
+                  : novoStatus === 6
                     ? "Cancelado pelo Barbeiro"
                     : novoStatus === 7
-                    ? "Finalizado"
-                    : a.status,
-              }
+                      ? "Finalizado"
+                      : a.status,
+            }
             : a
         )
       );
@@ -152,7 +150,6 @@ const Admin = ({ onVoltar, onLogout }) => {
     if (onVoltar) onVoltar();
   };
 
-  // 🔹 Logoff unificado com o App.jsx
   const handleLogoff = () => {
     if (onLogout) onLogout();
     showToast("Sessão encerrada com sucesso 👋", "sucesso");
@@ -190,7 +187,6 @@ const Admin = ({ onVoltar, onLogout }) => {
           </Link>
         </div>
 
-        {/* Tabelas */}
         <div className="admin-table">
           {loading ? (
             <p className="texto-centro">Carregando...</p>

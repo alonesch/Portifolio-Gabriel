@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import "../styles/BookingModal.css";
 
@@ -20,8 +21,8 @@ function BookingModal({ isOpen, onClose }) {
         const fetchData = async () => {
             try {
                 const [barbeirosRes, servicosRes] = await Promise.all([
-                    fetch("http://localhost:5186/api/barbeiro"),
-                    fetch("http://localhost:5186/api/servico"),
+                    fetch(`${import.meta.env.VITE_API_URL}/api/barbeiro`),
+                    fetch(`${import.meta.env.VITE_API_URL}/api/servico`),
                 ]);
 
                 const barbeirosData = await barbeirosRes.json();
@@ -39,7 +40,6 @@ function BookingModal({ isOpen, onClose }) {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        // limita o campo observacoes a 150 caracteres
         if (name === "observacaco" && value.length > 150) return;
         setFormData({ ...formData, [name]: value });
     };
@@ -48,7 +48,7 @@ function BookingModal({ isOpen, onClose }) {
         e.preventDefault();
 
         try {
-            const response = await fetch("http://localhost:5186/api/agendamento", {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/agendamento`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -66,6 +66,7 @@ function BookingModal({ isOpen, onClose }) {
                 }),
             });
 
+
             const result = await response.json();
 
             if (response.ok && result.sucesso) {
@@ -79,7 +80,6 @@ function BookingModal({ isOpen, onClose }) {
             alert("❌ Falha ao conectar com o servidor.");
         }
     };
-
 
     return (
         <div className="modal-overlay" onClick={onClose}>

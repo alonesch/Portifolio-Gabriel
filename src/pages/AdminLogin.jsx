@@ -13,7 +13,10 @@ const AdminLogin = () => {
     setAutenticando(true);
 
     try {
-      const response = await axios.post("http://localhost:5186/api/login", credenciais);
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/login`,
+        credenciais
+      );
 
       if (response.data.autenticado) {
         localStorage.setItem("usuarioId", response.data.usuario.id);
