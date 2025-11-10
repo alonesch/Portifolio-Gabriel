@@ -172,8 +172,7 @@ function BookingModal({ isOpen, onClose }) {
               <option value="">Selecione</option>
               {servicos.map((s) => (
                 <option key={s.id || s.ID} value={s.id || s.ID}>
-                  {(s.nomeServico + " R$" + s.valorServico) || (s.nome + " R$" + s.preco) || (s.Nome + " R$" + s.Preco)}
-                {console.log(s)}
+                  {s.nomeServico + " — R$" + s.preco}
                 </option>
               ))}
             </select>
