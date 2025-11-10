@@ -48,7 +48,7 @@ function BookingModal({ isOpen, onClose }) {
     fetchData();
   }, []);
 
-  // 🔹 Atualiza o estado conforme o usuário digita
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     if (name === "observacao" && value.length > 150) return;
@@ -172,7 +172,7 @@ function BookingModal({ isOpen, onClose }) {
               <option value="">Selecione</option>
               {servicos.map((s) => (
                 <option key={s.id || s.ID} value={s.id || s.ID}>
-                  {s.nomeServico || s.nome || s.Nome}
+                 {(s.nomeServico + " R$" + s.valorServico) || (s.nome + " R$" + s.preco )|| (s.Nome + " R$" + s.Preco)}
                 </option>
               ))}
             </select>
