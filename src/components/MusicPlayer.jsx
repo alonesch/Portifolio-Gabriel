@@ -46,9 +46,12 @@ function MusicPlayer() {
       <audio ref={audioRef} src="/music/trilha.mp3" loop preload="auto" />
 
       <div className="music-player__content">
-        <button className="music-player__btn" onClick={togglePlay}>
-          {isPlaying ? "⏸" : "▶"}
-        </button>
+       
+        <button
+          className={`music-toggle ${isPlaying ? "active" : ""}`}
+          onClick={togglePlay}
+          aria-label={isPlaying ? "Pausar música" : "Tocar música"}
+        ></button>
 
         <p className="music-player__track">
           <span className="track-marquee">{songTitle}</span>
@@ -56,7 +59,6 @@ function MusicPlayer() {
       </div>
     </div>
   );
-
 }
 
 export default MusicPlayer;

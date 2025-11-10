@@ -1,4 +1,9 @@
+import BookingModal from "./BookingModal";
+import { useState } from "react";
+
 function Booking() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   return (
     <section className="booking">
       <h2>Marque seu horário</h2>
@@ -26,7 +31,14 @@ function Booking() {
           <img src="/insta.png" alt="Instagram" className="insta_logo" />
           Instagram
         </a>
+
+        <button className="booking-btn" onClick={() => setIsModalOpen(true)}>
+          <img src="/clock.png" alt="Relógio" className="clock_logo" />
+          Agendar
+        </button>
       </div>
+
+      <BookingModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </section>
   );
 }

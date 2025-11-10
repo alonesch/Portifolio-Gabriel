@@ -1,11 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Quicksand:wght@700&family=Red+Hat+Display:ital,wght@0,300..900;1,300..900&display=swap');
 
 :root {
-    /* cores */
     --bg: #211111;
     --bege: #ECD6AF;
     --laranja: #CA7F0E;
-    /* fontes */
     --Quicksand: "Quicksand", sans-serif;
     --Montserrat: "Montserrat", sans-serif;
     --RedHat: "Red Hat Display", sans-serif;
@@ -14,6 +12,7 @@
 * {
     margin: 0;
     padding: 0;
+    box-sizing: border-box;
 }
 
 html {
@@ -21,36 +20,50 @@ html {
 }
 
 body {
-    box-sizing: border-box;
     background-image: radial-gradient(circle at center, #382020, #211111);
     color: var(--bege);
 }
 
-
+/* ====== CABEÇALHO ====== */
 .site-header {
     padding: 2% 0% 0% 15%;
 }
 
 .site-header_Menu {
     display: flex;
+    align-items: center;
     gap: 30px;
 }
 
 .site-header_Menu_link {
-    display: flex;
-    gap: 30px;
     text-decoration: none;
     color: var(--laranja);
     font-family: var(--Quicksand);
     font-size: 1.125rem;
     font-weight: 600;
+    transition: 0.3s;
+    cursor: pointer;
 }
 
 .site-header_Menu_link:hover {
     color: var(--bege);
 }
 
+.admin-btn {
+    all: unset;
+    color: var(--laranja);
+    font-family: var(--Quicksand);
+    font-size: 1.125rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+}
 
+.admin-btn:hover {
+    color: var(--bege);
+}
+
+/* ====== INTRO ====== */
 .container {
     display: flex;
     align-items: center;
@@ -85,18 +98,16 @@ body {
     font-size: 1.5rem;
 }
 
-
-
+/* ====== LAYOUT ====== */
 .main-layout {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 60px;
     margin: 4% 10%;
-    
 }
 
-
+/* ====== MUSIC PLAYER ====== */
 .music-player {
     position: sticky;
     top: 0;
@@ -107,59 +118,101 @@ body {
     border-bottom: 1px solid var(--laranja);
     display: flex;
     justify-content: center;
+    align-items: center;
     padding: 0.8rem 1rem;
 }
 
-.music-toggle {
-    background: transparent;
-    color: var(--laranja);
-    border: 2px solid var(--laranja);
-    border-radius: 8px;
-    padding: 0.5rem 1.2rem;
-    font-family: var(--RedHat);
-    font-weight: 700;
-    cursor: pointer;
-    transition: 0.3s;
-}
-
+/* Conteúdo interno: botão + faixa */
 .music-player__content {
-    width: 100%;
-    max-width: 1200px;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 1rem;
+    flex-wrap: nowrap;
 }
 
-
-
-.music-player__btn {
-    background: none;
-    border: 2px solid var(--laranja);
-    color: var(--laranja);
-    font-size: 1.2rem;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    cursor: pointer;
-    transition: 0.3s;
-}
-
-.music-player__btn:hover {
-    background-color: var(--laranja);
-    color: var(--bg);
-    transform: scale(1.1);
-}
-
+/* Texto da faixa */
 .music-player__track {
-    font-weight: 600;
-    letter-spacing: 0.5px;
+    font-size: 1.1rem;
+    color: var(--bege);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    text-align: right;
+    max-width: 90vw;
 }
 
+.track-marquee {
+    display: inline-block;
+    font-family: var(--RedHat);
+}
+
+/* ===== BOTÃO PLAY / PAUSE ===== */
+.music-toggle {
+    all: unset;
+    -webkit-appearance: none;
+    appearance: none;
+    
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    border: 2px solid var(--laranja);
+    background-color: var(--bg);
+    
+    color: var(--laranja);
+    font-size: 1.3rem;
+    line-height: 1;
+    cursor: pointer;
+    user-select: none;
+    
+    box-shadow: 0 0 8px rgba(202, 127, 14, .35);
+    transition: transform .2s ease, box-shadow .2s ease, background-color .2s ease, color .2s ease;
+}
+
+.music-toggle:hover {
+    background-color: var(--laranja);
+    color: var(--bg);
+    transform: scale(1.1);
+    box-shadow: 0 0 14px rgba(202, 127, 14, .65);
+}
+
+.music-toggle:focus-visible {
+    outline: 3px solid rgba(202, 127, 14, .5);
+    outline-offset: 3px;
+}
+
+.music-toggle::before {
+    content: '▶';
+}
+
+.music-toggle.active::before {
+    content: '⏸';
+}
+
+/* ===== RESPONSIVIDADE DO PLAYER ===== */
+@media (max-width: 768px) {
+    .music-player__content {
+        flex-direction: row;
+        justify-content: flex-start;
+        padding: 0 1rem;
+    }
+
+    .music-player__track {
+        font-size: 1rem;
+        max-width: 75vw;
+    }
+
+    .music-toggle {
+        width: 42px;
+        height: 42px;
+        font-size: 1.2rem;
+    }
+}
+
+/* ====== GALERIA ====== */
 .gallery {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -172,7 +225,7 @@ body {
     width: 100%;
     border-radius: 10px;
     border: 2px solid var(--bege);
-    transition: transform 0.3s ease;
+    transition: transform .3s ease;
 }
 
 .gallery img:hover {
@@ -180,7 +233,7 @@ body {
     border-color: var(--laranja);
 }
 
-
+/* ====== AGENDAMENTO ====== */
 .booking {
     display: flex;
     flex-direction: column;
@@ -206,26 +259,71 @@ body {
     color: var(--laranja);
 }
 
-.booking button {
-    margin-top: 1rem;
-    padding: 1rem 2rem;
-    background-color: transparent;
+/* ====== BOTÕES ====== */
+.booking-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 250px;
+    height: 60px;
     border: 2px solid var(--bege);
     border-radius: 10px;
+    background-color: transparent;
     color: var(--laranja);
     font-family: var(--RedHat);
     font-size: 1.2rem;
+    text-decoration: none;
     cursor: pointer;
-    transition: 0.3s;
+    transition: all .3s ease;
+    white-space: nowrap;
+    line-height: 1;
+    vertical-align: middle;
 }
 
-.booking button:hover {
+.booking-btn:hover {
     background-color: var(--bg);
     border-color: var(--laranja);
     transform: scale(1.05);
 }
 
+.wpp_logo,
+.insta_logo,
+.clock_logo {
+    width: 26px;
+    height: 26px;
+    object-fit: contain;
+    display: inline-block;
+    vertical-align: middle;
+}
 
+button.booking-btn {
+    appearance: none;
+    border: 2px solid var(--bege);
+    background: transparent;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 250px;
+    height: 60px;
+    border-radius: 10px;
+    transition: all .3s ease;
+    box-sizing: border-box;
+    line-height: 1;
+    font-family: var(--RedHat);
+    color: var(--laranja);
+}
+
+button.booking-btn:hover {
+    background-color: var(--bg);
+    border-color: var(--laranja);
+    transform: scale(1.05);
+}
+
+/* ====== BRANDING ====== */
 .branding {
     display: flex;
     justify-content: center;
@@ -235,7 +333,6 @@ body {
     border-top: 1px solid var(--laranja);
     flex-wrap: wrap;
 }
-
 
 .branding img {
     width: 140px;
@@ -250,7 +347,6 @@ body {
     margin: 0 1.5rem;
 }
 
-
 .branding__text {
     font-family: var(--RedHat);
     font-size: 1.3rem;
@@ -258,21 +354,21 @@ body {
     line-height: 1.6;
 }
 
-
 .branding-text-group {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 0.3rem;
+    gap: .3rem;
 }
 
+/* ====== RODAPÉ ====== */
 .site-footer {
     text-align: center;
     padding: 24px 0;
     color: var(--laranja);
     font-family: var(--RedHat);
     font-weight: 900;
-    font-size: 0.625rem;
+    font-size: .625rem;
     justify-content: center;
 }
 
@@ -312,39 +408,10 @@ body {
     }
 }
 
-/* === Tablets e telas médias === */
-@media (max-width: 1200px) {
-    .site-header {
-        padding: 10%;
-    }
-
-    .site-header_Menu {
-        justify-content: center;
-    }
-
-    .container {
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        gap: 40px;
-    }
-
-    .intro,
-    .banner1 {
-        width: 100%;
-    }
-
-    .gallery {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-/* === Ajustes gerais para tablets menores === */
 @media (max-width: 900px) {
     .container {
         display: flex;
         flex-direction: row;
-        /* texto à esquerda, banner à direita */
         align-items: center;
         justify-content: space-between;
         gap: 20px;
@@ -373,143 +440,22 @@ body {
     }
 }
 
-/* === Celulares === */
 @media (max-width: 600px) {
     .main-layout {
         margin-top: 70px;
-        /* reduz o espaço no mobile */
     }
 
-    .container {
-        display: flex;
-        flex-direction: row;
-        /* mantém lado a lado (texto e imagem) */
-        align-items: flex-start;
-        justify-content: center;
-        gap: 1rem;
-        padding: 0 1rem;
-    }
-
-    .intro {
-        flex: 1;
-        text-align: left;
-        max-width: 60%;
-    }
-
-    .intro__title {
-        font-size: 1.3rem;
-        line-height: 1.3;
-        word-break: break-word;
-    }
-
-
-    .intro__subtitle {
-        font-size: 1rem;
-        line-height: 1.4;
-    }
-
-    .intro__text1 {
-        font-size: 0.9rem;
-        line-height: 1.5;
-        text-align: justify;
-    }
-
-    .banner1 {
-        flex: 0 0 auto;
-        width: 35%;
-        display: none;
-        justify-content: flex-end;
-        align-items: flex-start;
-    }
-
-    .banner1 img {
-        width: 100%;
-        max-width: 200px;
-        height: auto;
-    }
-
-    body {
-        overflow-x: hidden;
-    }
-
-
-    /* Botões de agendamento */
     .booking-buttons {
         flex-direction: row;
-        gap: 0.8rem;
+        gap: .8rem;
     }
 
     .booking-btn {
         width: 100%;
         max-width: 250px;
     }
-
-    /* Player de música */
-    .music-toggle {
-        font-size: 0.9rem;
-        padding: 0.5rem 1rem;
-    }
-
-    /* Galeria vira carrossel horizontal */
-    .gallery {
-        display: flex;
-        overflow-x: auto;
-        scroll-snap-type: x mandatory;
-        gap: 12px;
-        padding-bottom: 1rem;
-    }
-
-    .gallery img {
-        flex: 0 0 80%;
-        scroll-snap-align: center;
-        border-radius: 10px;
-    }
-
-    .gallery::-webkit-scrollbar {
-        display: none;
-    }
-
-    /* Tipografia reduzida */
-    .intro__title {
-        font-size: 1.6rem;
-    }
-
-    .intro__subtitle {
-        font-size: 1.2rem;
-    }
-
-    .intro__text1 {
-        font-size: 1rem;
-    }
-
-    .music-player__track {
-        overflow: hidden;
-        white-space: nowrap;
-        text-align: left;
-        max-width: 70vw;
-    }
-
-    .track-marquee {
-        display: inline-block;
-        padding-left: 100%;
-        animation: track-marquee 12s linear infinite;
-    }
-
-    @keyframes track-marquee {
-        0% {
-            transform: translateX(0);
-        }
-
-        100% {
-            transform: translateX(-100%);
-        }
-    }
-
-
-
 }
 
-/* === Branding (logo + texto) === */
 @media (max-width: 800px) {
     .branding {
         flex-direction: column;
@@ -525,34 +471,102 @@ body {
     }
 }
 
-
-.booking-btn {
-    display: inline-flex;
-    align-items: center;
+/* ====== LOGIN ADMIN ====== */
+.login-container {
+    min-height: 100vh;
+    background-image: radial-gradient(circle at center, #382020, #211111);
+    display: flex;
+    flex-direction: column;
     justify-content: center;
-    gap: 10px;
-    width: 220px;
-    /* largura fixa igual pra ambos */
-    padding: 1rem 2rem;
-    border: 2px solid var(--bege);
-    border-radius: 10px;
-    background-color: transparent;
-    color: var(--laranja);
+    align-items: center;
+    color: var(--bege);
     font-family: var(--RedHat);
-    font-size: 1.2rem;
-    text-decoration: none;
+    text-align: center;
+}
+
+.login-container h1 {
+    font-family: var(--Quicksand);
+    color: var(--laranja);
+    margin-bottom: 1.5rem;
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    background-color: #1e1e1e;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, .4);
+    width: 90%;
+    max-width: 350px;
+}
+
+.login-form input {
+    padding: .8rem;
+    border: 1px solid #333;
+    border-radius: 8px;
+    background-color: #252525;
+    color: var(--bege);
+    font-family: var(--RedHat);
+}
+
+.login-form button {
+    background-color: var(--laranja);
+    color: var(--bege);
+    border: none;
+    border-radius: 8px;
+    padding: .8rem;
     cursor: pointer;
-    transition: all 0.3s ease;
+    font-weight: bold;
+    transition: .3s;
 }
 
-.booking-btn:hover {
-    background-color: var(--bg);
-    border-color: var(--laranja);
-    transform: scale(1.05);
+.login-form button:hover {
+    background-color: var(--bege);
+    color: var(--bg);
 }
 
-.wpp_logo,
-.insta_logo {
-    width: 26px;
-    height: 26px;
+.erro-login {
+    color: #ff5555;
+    font-size: .9rem;
+    margin-top: .5rem;
+}
+
+/* ====== BOTÃO VOLTAR ====== */
+.voltar-site {
+    background: none;
+    border: 1px solid var(--bege);
+    color: var(--bege);
+    padding: 8px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: .3s;
+    font-family: var(--RedHat);
+    font-weight: 600;
+    margin: 1rem;
+}
+
+.voltar-site:hover {
+    background-color: var(--bege);
+    color: var(--bg);
+}
+
+/* ====== AJUSTES HEADER MOBILE ====== */
+@media (max-width: 768px) {
+  .site-header {
+    padding: 1rem 0;
+  }
+
+  .site-header_Menu {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1.2rem;
+  }
+
+  .site-header_Menu_link,
+  .admin-btn {
+    font-size: 1rem;
+    padding: 0.4rem 0.8rem;
+  }
 }
