@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import "./Admin.css";
@@ -8,15 +8,17 @@ const API_URL = import.meta.env.VITE_API_URL;
 const Admin = ({ onVoltar, onLogout }) => {
   const [agendamentos, setAgendamentos] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [authChecked, setAuthChecked] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [toast, setToast] = useState(null);
+
   const location = useLocation();
   const navigate = useNavigate();
+  const redirectedRef = useRef(false);
 
   const [tipo, setTipo] = useState(() =>
     location.pathname.includes("historico") ? "historico" : "ativos"
   );
-
   useEffect(() => {
     setTipo(location.pathname.includes("historico") ? "historico" : "ativos");
   }, [location.pathname]);
@@ -25,31 +27,40 @@ const Admin = ({ onVoltar, onLogout }) => {
   const [paginaHistorico, setPaginaHistorico] = useState(1);
   const itensPorPagina = 5;
 
+  // ✅ Detecta resize
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // ✅ Busca agendamentos com autenticação
+  // ✅ Checa autenticação apenas uma vez
   useEffect(() => {
+    const token = localStorage.getItem("token");
+    const usuarioId = localStorage.getItem("usuarioId");
+
+    if (!token || !usuarioId) {
+      navigate("/login", { replace: true });
+    } else {
+      setAuthChecked(true);
+    }
+  }, [navigate]);
+
+  // ✅ Só busca agendamentos após confirmar autenticação
+  useEffect(() => {
+    if (!authChecked) return;
+
+    let alive = true;
+
     const fetchAgendamentos = async () => {
       try {
-        const usuarioId = localStorage.getItem("usuarioId");
         const token = localStorage.getItem("token");
-
-        if (!usuarioId || !token) {
-          console.warn("Usuário não autenticado ou token ausente.");
-          navigate("/login");
-          return;
-        }
+        const usuarioId = localStorage.getItem("usuarioId");
 
         const response = await axios.get(
           `${API_URL}/api/agendamento/barbeiro/${usuarioId}`,
           {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+            headers: { Authorization: `Bearer ${token}` },
           }
         );
 
@@ -64,20 +75,24 @@ const Admin = ({ onVoltar, onLogout }) => {
           servicos: a.servicos?.$values || a.servicos || [],
         }));
 
-        setAgendamentos(parsed);
+        if (alive) setAgendamentos(parsed);
       } catch (error) {
         console.error("Erro ao carregar agendamentos:", error);
-        if (error.response?.status === 401) {
+        if (error.response?.status === 401 && !redirectedRef.current) {
+          redirectedRef.current = true;
           localStorage.removeItem("token");
-          navigate("/login");
+          navigate("/login", { replace: true });
         }
       } finally {
-        setLoading(false);
+        if (alive) setLoading(false);
       }
     };
 
     fetchAgendamentos();
-  }, [navigate]);
+    return () => {
+      alive = false;
+    };
+  }, [authChecked, navigate]);
 
   const showToast = (mensagem, tipo = "info") => {
     setToast({ mensagem, tipo });
@@ -90,9 +105,7 @@ const Admin = ({ onVoltar, onLogout }) => {
       await axios.patch(
         `${API_URL}/api/agendamento/${id}/status`,
         { status: novoStatus },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
 
       setAgendamentos((prev) =>
@@ -171,15 +184,24 @@ const Admin = ({ onVoltar, onLogout }) => {
 
   const handleVoltar = () => {
     navigate("/");
-    if (onVoltar) onVoltar();
+    onVoltar?.();
   };
 
   const handleLogoff = () => {
     localStorage.removeItem("token");
-    if (onLogout) onLogout();
+    onLogout?.();
     showToast("Sessão encerrada com sucesso 👋", "sucesso");
-    setTimeout(() => navigate("/login"), 800);
+    setTimeout(() => navigate("/login", { replace: true }), 800);
   };
+
+  // 🔄 Enquanto verifica o auth (impede tela branca)
+  if (!authChecked) {
+    return (
+      <div className="admin-page">
+        <p className="texto-centro">Verificando autenticação...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="admin-page">
