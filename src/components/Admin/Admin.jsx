@@ -1,8 +1,9 @@
-
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import "./Admin.css";
+
+const API_URL = import.meta.env.VITE_API_URL;
 
 const Admin = ({ onVoltar, onLogout }) => {
   const [agendamentos, setAgendamentos] = useState([]);
@@ -11,6 +12,7 @@ const Admin = ({ onVoltar, onLogout }) => {
   const [toast, setToast] = useState(null);
   const location = useLocation();
   const navigate = useNavigate();
+
   const [tipo, setTipo] = useState(() =>
     location.pathname.includes("historico") ? "historico" : "ativos"
   );
@@ -29,17 +31,29 @@ const Admin = ({ onVoltar, onLogout }) => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  // ✅ Busca agendamentos com autenticação
   useEffect(() => {
     const fetchAgendamentos = async () => {
       try {
         const usuarioId = localStorage.getItem("usuarioId");
-        if (!usuarioId) return;
+        const token = localStorage.getItem("token");
+
+        if (!usuarioId || !token) {
+          console.warn("Usuário não autenticado ou token ausente.");
+          navigate("/login");
+          return;
+        }
 
         const response = await axios.get(
-          `${import.meta.env.VITE_API_URL}/api/agendamento/barbeiro/${usuarioId}`
+          `${API_URL}/api/agendamento/barbeiro/${usuarioId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
         );
 
-        const data = response.data?.$values || response.data;
+        const data = response.data?.$values || response.data || [];
         const parsed = data.map((a) => ({
           id: a.id,
           cliente: a.cliente,
@@ -52,13 +66,18 @@ const Admin = ({ onVoltar, onLogout }) => {
 
         setAgendamentos(parsed);
       } catch (error) {
-        console.error("Erro ao carregar agendamentos:", error.message);
+        console.error("Erro ao carregar agendamentos:", error);
+        if (error.response?.status === 401) {
+          localStorage.removeItem("token");
+          navigate("/login");
+        }
       } finally {
         setLoading(false);
       }
     };
+
     fetchAgendamentos();
-  }, []);
+  }, [navigate]);
 
   const showToast = (mensagem, tipo = "info") => {
     setToast({ mensagem, tipo });
@@ -67,30 +86,35 @@ const Admin = ({ onVoltar, onLogout }) => {
 
   const atualizarStatus = async (id, novoStatus) => {
     try {
+      const token = localStorage.getItem("token");
       await axios.patch(
-        `${import.meta.env.VITE_API_URL}/api/agendamento/${id}/status`,
-        { status: novoStatus }
+        `${API_URL}/api/agendamento/${id}/status`,
+        { status: novoStatus },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
       );
+
       setAgendamentos((prev) =>
         prev.map((a) =>
           a.id === id
             ? {
-              ...a,
-              status:
-                novoStatus === 2
-                  ? "Confirmado"
-                  : novoStatus === 6
+                ...a,
+                status:
+                  novoStatus === 2
+                    ? "Confirmado"
+                    : novoStatus === 6
                     ? "Cancelado pelo Barbeiro"
                     : novoStatus === 7
-                      ? "Finalizado"
-                      : a.status,
-            }
+                    ? "Finalizado"
+                    : a.status,
+              }
             : a
         )
       );
       showToast("Status atualizado com sucesso ✅", "sucesso");
     } catch (err) {
-      console.error("Erro ao atualizar status:", err.message);
+      console.error("Erro ao atualizar status:", err);
       showToast("Erro ao atualizar o status ❌", "erro");
     }
   };
@@ -103,8 +127,8 @@ const Admin = ({ onVoltar, onLogout }) => {
       a.status
     )
   );
-  const lista = tipo === "historico" ? historico : ativos;
 
+  const lista = tipo === "historico" ? historico : ativos;
   const paginaAtual = tipo === "historico" ? paginaHistorico : paginaAtivos;
   const setPaginaAtual =
     tipo === "historico" ? setPaginaHistorico : setPaginaAtivos;
@@ -151,6 +175,7 @@ const Admin = ({ onVoltar, onLogout }) => {
   };
 
   const handleLogoff = () => {
+    localStorage.removeItem("token");
     if (onLogout) onLogout();
     showToast("Sessão encerrada com sucesso 👋", "sucesso");
     setTimeout(() => navigate("/login"), 800);
