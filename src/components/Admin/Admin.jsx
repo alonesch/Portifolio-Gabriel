@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate, Navigate } from "react-router-dom";
 import "./Admin.css";
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -10,13 +10,13 @@ const Admin = ({ onVoltar, onLogout }) => {
   const [loading, setLoading] = useState(true);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [toast, setToast] = useState(null);
+
   const location = useLocation();
   const navigate = useNavigate();
 
   const [tipo, setTipo] = useState(() =>
     location.pathname.includes("historico") ? "historico" : "ativos"
   );
-
   useEffect(() => {
     setTipo(location.pathname.includes("historico") ? "historico" : "ativos");
   }, [location.pathname]);
@@ -31,26 +31,26 @@ const Admin = ({ onVoltar, onLogout }) => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // ✅ Busca agendamentos com autenticação
+  // ========= AUTH GATE NO RENDER =========
+  const token = localStorage.getItem("token");
+  const usuarioId = localStorage.getItem("usuarioId");
+
+  if (!token || !usuarioId) {
+    // Evita chamar navigate() no efeito toda hora
+    return <Navigate to="/login" replace />;
+  }
+
+  // ========= BUSCA DE AGENDAMENTOS =========
+  const redirectedRef = useRef(false); // garante que redirecione só 1x
+
   useEffect(() => {
+    let alive = true;
+
     const fetchAgendamentos = async () => {
       try {
-        const usuarioId = localStorage.getItem("usuarioId");
-        const token = localStorage.getItem("token");
-
-        if (!usuarioId || !token) {
-          console.warn("Usuário não autenticado ou token ausente.");
-          navigate("/login");
-          return;
-        }
-
         const response = await axios.get(
           `${API_URL}/api/agendamento/barbeiro/${usuarioId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
+          { headers: { Authorization: `Bearer ${token}` } }
         );
 
         const data = response.data?.$values || response.data || [];
@@ -64,20 +64,27 @@ const Admin = ({ onVoltar, onLogout }) => {
           servicos: a.servicos?.$values || a.servicos || [],
         }));
 
+        if (!alive) return;
         setAgendamentos(parsed);
       } catch (error) {
         console.error("Erro ao carregar agendamentos:", error);
-        if (error.response?.status === 401) {
+        if (error.response?.status === 401 && !redirectedRef.current) {
+          redirectedRef.current = true;
           localStorage.removeItem("token");
-          navigate("/login");
+          navigate("/login", { replace: true });
         }
       } finally {
-        setLoading(false);
+        if (alive) setLoading(false);
       }
     };
 
     fetchAgendamentos();
-  }, [navigate]);
+    return () => {
+      alive = false;
+    };
+    // token/usuarioId vêm do localStorage e só mudam em logout/login
+    // navegar manualmente já desmonta este componente
+  }, [navigate, token, usuarioId]);
 
   const showToast = (mensagem, tipo = "info") => {
     setToast({ mensagem, tipo });
@@ -86,13 +93,11 @@ const Admin = ({ onVoltar, onLogout }) => {
 
   const atualizarStatus = async (id, novoStatus) => {
     try {
-      const token = localStorage.getItem("token");
+      const tokenLocal = localStorage.getItem("token");
       await axios.patch(
         `${API_URL}/api/agendamento/${id}/status`,
         { status: novoStatus },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        { headers: { Authorization: `Bearer ${tokenLocal}` } }
       );
 
       setAgendamentos((prev) =>
@@ -171,14 +176,14 @@ const Admin = ({ onVoltar, onLogout }) => {
 
   const handleVoltar = () => {
     navigate("/");
-    if (onVoltar) onVoltar();
+    onVoltar?.();
   };
 
   const handleLogoff = () => {
     localStorage.removeItem("token");
-    if (onLogout) onLogout();
+    onLogout?.();
     showToast("Sessão encerrada com sucesso 👋", "sucesso");
-    setTimeout(() => navigate("/login"), 800);
+    setTimeout(() => navigate("/login", { replace: true }), 800);
   };
 
   return (
