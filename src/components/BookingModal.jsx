@@ -127,7 +127,7 @@ function BookingModal({ isOpen, onClose }) {
               name="cpf"
               value={formData.cpf}
               onChange={handleChange}
-              placeholder="Somente números"
+              placeholder="Somente números (obrigatório)"
               maxLength={11}
             />
           </label>
@@ -139,7 +139,8 @@ function BookingModal({ isOpen, onClose }) {
               name="telefone"
               value={formData.telefone}
               onChange={handleChange}
-              placeholder="Ex: 51981695117"
+              placeholder="Ex: 51999999999 (obrigatório)"
+              maxLength={11}
               required
             />
           </label>
