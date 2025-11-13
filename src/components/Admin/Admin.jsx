@@ -32,36 +32,43 @@ const Admin = ({ onVoltar, onLogout }) => {
   useEffect(() => {
     const fetchAgendamentos = async () => {
       const token = localStorage.getItem("token");
-      const usuarioId = localStorage.getItem("usuarioId");
+      const barbeiroId = localStorage.getItem("barbeiroId");
 
-      if (!token || !usuarioId) {
+      if (!token || !barbeiroId) {
         navigate("/login", { replace: true });
         return;
       }
 
       try {
         const response = await axios.get(
-          `${API_URL}/api/agendamento/barbeiro/${usuarioId}`,
+          `${API_URL}/api/agendamento/barbeiro/${barbeiroId}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
 
         const data = response.data?.$values || response.data || [];
+
         const parsed = data.map((a) => ({
           id: a.id,
-          cliente: a.cliente,
-          barbeiro: a.barbeiro,
+          cliente: a.nome,                   // ✔ correto
+          barbeiro: a.barbeiroId,            // ✔ correto
           dataHora: a.dataHora,
-          status: a.status,
+          status:
+            a.status === 1 ? "Pendente" :
+            a.status === 2 ? "Confirmado" :
+            a.status === 5 ? "Cancelado pelo Cliente" :
+            a.status === 6 ? "Cancelado pelo Barbeiro" :
+            a.status === 7 ? "Finalizado" :
+            "Desconhecido",
           observacao: a.observacao,
-          servicos: a.servicos?.$values || a.servicos || [],
+          servicos: (a.agendamentoServicos || []).map(
+            (s) => `Serviço #${s.servicoId}`
+          ),
         }));
 
         setAgendamentos(parsed);
       } catch (error) {
         console.error("Erro ao carregar agendamentos:", error);
         if (error.response?.status === 401) {
-          localStorage.removeItem("token");
-          localStorage.removeItem("autenticado");
           navigate("/login", { replace: true });
         }
       } finally {
@@ -105,6 +112,7 @@ const Admin = ({ onVoltar, onLogout }) => {
             : a
         )
       );
+
       showToast("Status atualizado com sucesso ✅", "sucesso");
     } catch (err) {
       console.error("Erro ao atualizar status:", err);
@@ -116,10 +124,9 @@ const Admin = ({ onVoltar, onLogout }) => {
   const ativos = agendamentos.filter((a) =>
     ["Pendente", "Confirmado"].includes(a.status)
   );
+
   const historico = agendamentos.filter((a) =>
-    ["Finalizado", "Cancelado pelo Barbeiro", "Cancelado pelo Cliente"].includes(
-      a.status
-    )
+    ["Finalizado", "Cancelado pelo Barbeiro", "Cancelado pelo Cliente"].includes(a.status)
   );
 
   const lista = tipo === "historico" ? historico : ativos;
@@ -139,8 +146,11 @@ const Admin = ({ onVoltar, onLogout }) => {
     localStorage.removeItem("token");
     localStorage.removeItem("usuarioId");
     localStorage.removeItem("usuarioNome");
+    localStorage.removeItem("barbeiroId");
+
     onLogout?.();
     showToast("Sessão encerrada com sucesso 👋", "sucesso");
+
     setTimeout(() => navigate("/login", { replace: true }), 800);
   };
 
@@ -168,10 +178,7 @@ const Admin = ({ onVoltar, onLogout }) => {
           <Link to="/admin" className={`aba ${tipo === "ativos" ? "ativa" : ""}`}>
             Ativos
           </Link>
-          <Link
-            to="/admin/historico"
-            className={`aba ${tipo === "historico" ? "ativa" : ""}`}
-          >
+          <Link to="/admin/historico" className={`aba ${tipo === "historico" ? "ativa" : ""}`}>
             Histórico
           </Link>
         </div>
@@ -196,9 +203,7 @@ const Admin = ({ onVoltar, onLogout }) => {
                   {paginaItens.map((a) => (
                     <tr key={a.id}>
                       <td>{a.cliente}</td>
-                      <td>
-                        {(a.servicos || []).map((s) => s.nomeServico).join(", ")}
-                      </td>
+                      <td>{a.servicos.join(", ")}</td>
                       <td>{new Date(a.dataHora).toLocaleString("pt-BR")}</td>
                       <td className={`status ${a.status.toLowerCase().replace(/\s/g, "-")}`}>
                         {a.status}
@@ -228,7 +233,7 @@ const Admin = ({ onVoltar, onLogout }) => {
               paginaItens.map((a) => (
                 <div className="admin-card" key={a.id}>
                   <p><strong>Cliente:</strong> {a.cliente}</p>
-                  <p><strong>Serviços:</strong> {(a.servicos || []).map((s) => s.nomeServico).join(", ")}</p>
+                  <p><strong>Serviços:</strong> {a.servicos.join(", ")}</p>
                   <p><strong>Data:</strong> {new Date(a.dataHora).toLocaleString("pt-BR")}</p>
                   <p><strong>Status:</strong> {a.status}</p>
                   <p><strong>Obs:</strong> {a.observacao || "-"}</p>
@@ -265,8 +270,7 @@ const Admin = ({ onVoltar, onLogout }) => {
             <button onClick={() => setPagina(pagina + 1)} disabled={pagina === totalPaginas}>
               Próxima →
             </button>
-          </div>
-        )}
+          </div> )}
       </div>
 
       {toast && <div className={`toast ${toast.tipo}`}>{toast.mensagem}</div>}

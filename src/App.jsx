@@ -15,8 +15,9 @@ function App() {
   // 🔹 Verifica login salvo
   useEffect(() => {
     const token = localStorage.getItem("token");
-    const usuarioId = localStorage.getItem("usuarioId");
-    if (token && usuarioId) {
+    const barbeiroId = localStorage.getItem("barbeiroId");
+
+    if (token && barbeiroId) {
       setAutenticado(true);
     }
   }, []);
@@ -30,10 +31,10 @@ function App() {
       const response = await axios.post(`${API_URL}/api/login`, credenciais);
 
       if (response.data.autenticado && response.data.token) {
-        localStorage.setItem("autenticado", "true");
         localStorage.setItem("token", response.data.token);
         localStorage.setItem("usuarioId", response.data.usuario.id);
-        localStorage.setItem("usuarioNome", response.data.usuario.nome);
+        localStorage.setItem("usuarioNome", response.data.usuario.nomeUsuario);
+        localStorage.setItem("barbeiroId", response.data.usuario.barbeiroId);
         setAutenticado(true);
       } else {
         setErro("Usuário ou senha incorretos.");
@@ -46,20 +47,17 @@ function App() {
 
   // 🔹 Logout
   const handleLogout = () => {
-    localStorage.removeItem("autenticado");
-    localStorage.removeItem("token");
-    localStorage.removeItem("usuarioId");
-    localStorage.removeItem("usuarioNome");
+    localStorage.clear();
     setAutenticado(false);
   };
 
   return (
     <Router>
       <Routes>
-        {/* 🏠 Página inicial */}
+        {/* Página inicial */}
         <Route path="/" element={<Home />} />
 
-        {/* 💈 Login do barbeiro */}
+        {/* Login */}
         <Route
           path="/login"
           element={
@@ -102,7 +100,7 @@ function App() {
           }
         />
 
-        {/* 💈 Painel principal */}
+        {/* Admin */}
         <Route
           path="/admin"
           element={
@@ -114,7 +112,7 @@ function App() {
           }
         />
 
-        {/* 📜 Histórico */}
+        {/* Histórico */}
         <Route
           path="/admin/historico"
           element={
@@ -126,7 +124,7 @@ function App() {
           }
         />
 
-        {/* ❌ 404 */}
+        {/* 404 */}
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>
