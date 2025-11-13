@@ -73,6 +73,52 @@
   transform: scale(1.05);
 }
 
+/* =====PAGINAÇÃO ADMIN ===== */
+.paginacao {
+  padding: 15px 0;
+  transition: all 0.3s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.paginacao button {
+  background: transparent;
+  border: 1px solid var(--laranja);
+  color: var(--laranja);
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-family: var(--RedHat);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* Hover bonitão */
+.paginacao button:hover {
+  background-color: var(--laranja);
+  color: var(--bg);
+  transform: scale(1.05);
+}
+
+/* Quando desativado */
+.paginacao button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  border-color: #555;
+  transform: none;
+}
+
+/* Impede hover do disabled */
+.paginacao button:disabled:hover {
+  background: transparent;
+  color: var(--laranja);
+  transform: none;
+}
+
+
+
 /* ===== CONTAINER PRINCIPAL ===== */
 .admin-container {
   background-color: #1e1e1e;
