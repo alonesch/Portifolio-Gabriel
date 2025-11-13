@@ -10,26 +10,28 @@ function App() {
   const [autenticado, setAutenticado] = useState(false);
   const [credenciais, setCredenciais] = useState({ usuario: "", senha: "" });
   const [erro, setErro] = useState("");
+  const API_URL = import.meta.env.VITE_API_URL;
 
-  // 🔹 Verifica se já há login salvo
+  // 🔹 Verifica login salvo
   useEffect(() => {
-    const autenticadoLocal = localStorage.getItem("autenticado");
-    if (autenticadoLocal === "true") setAutenticado(true);
+    const token = localStorage.getItem("token");
+    const usuarioId = localStorage.getItem("usuarioId");
+    if (token && usuarioId) {
+      setAutenticado(true);
+    }
   }, []);
 
-  // 🔹 Login do barbeiro
+  // 🔹 Login
   const handleLogin = async (e) => {
     e.preventDefault();
     setErro("");
 
     try {
-      const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}/api/login`,
-        credenciais
-      );
+      const response = await axios.post(`${API_URL}/api/login`, credenciais);
 
-      if (response.data.autenticado) {
+      if (response.data.autenticado && response.data.token) {
         localStorage.setItem("autenticado", "true");
+        localStorage.setItem("token", response.data.token);
         localStorage.setItem("usuarioId", response.data.usuario.id);
         localStorage.setItem("usuarioNome", response.data.usuario.nome);
         setAutenticado(true);
@@ -45,6 +47,7 @@ function App() {
   // 🔹 Logout
   const handleLogout = () => {
     localStorage.removeItem("autenticado");
+    localStorage.removeItem("token");
     localStorage.removeItem("usuarioId");
     localStorage.removeItem("usuarioNome");
     setAutenticado(false);
@@ -53,15 +56,15 @@ function App() {
   return (
     <Router>
       <Routes>
-        {/* 🏠 Home */}
+        {/* 🏠 Página inicial */}
         <Route path="/" element={<Home />} />
 
-        {/* 💈 Login do Barbeiro */}
+        {/* 💈 Login do barbeiro */}
         <Route
           path="/login"
           element={
             autenticado ? (
-              <Navigate to="/admin" />
+              <Navigate to="/admin" replace />
             ) : (
               <div className="login-container">
                 <h1>💈 Login do Barbeiro</h1>
@@ -99,14 +102,14 @@ function App() {
           }
         />
 
-        {/* 💈 Painel Principal */}
+        {/* 💈 Painel principal */}
         <Route
           path="/admin"
           element={
             autenticado ? (
               <AdminPage onLogout={handleLogout} />
             ) : (
-              <Navigate to="/login" />
+              <Navigate to="/login" replace />
             )
           }
         />
@@ -118,12 +121,12 @@ function App() {
             autenticado ? (
               <AdminPage tipo="historico" onLogout={handleLogout} />
             ) : (
-              <Navigate to="/login" />
+              <Navigate to="/login" replace />
             )
           }
         />
 
-        {/* ❌ Página não encontrada */}
+        {/* ❌ 404 */}
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>

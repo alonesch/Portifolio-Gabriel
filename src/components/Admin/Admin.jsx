@@ -21,36 +21,28 @@ const Admin = ({ onVoltar, onLogout }) => {
     setTipo(location.pathname.includes("historico") ? "historico" : "ativos");
   }, [location.pathname]);
 
-  const [paginaAtivos, setPaginaAtivos] = useState(1);
-  const [paginaHistorico, setPaginaHistorico] = useState(1);
-  const itensPorPagina = 5;
-
+  // 🔹 Detecta mobile
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // ✅ Busca agendamentos com autenticação
+  // 🔹 Busca agendamentos
   useEffect(() => {
     const fetchAgendamentos = async () => {
+      const token = localStorage.getItem("token");
+      const usuarioId = localStorage.getItem("usuarioId");
+
+      if (!token || !usuarioId) {
+        navigate("/login", { replace: true });
+        return;
+      }
+
       try {
-        const usuarioId = localStorage.getItem("usuarioId");
-        const token = localStorage.getItem("token");
-
-        if (!usuarioId || !token) {
-          console.warn("Usuário não autenticado ou token ausente.");
-          navigate("/login");
-          return;
-        }
-
         const response = await axios.get(
           `${API_URL}/api/agendamento/barbeiro/${usuarioId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
+          { headers: { Authorization: `Bearer ${token}` } }
         );
 
         const data = response.data?.$values || response.data || [];
@@ -69,7 +61,8 @@ const Admin = ({ onVoltar, onLogout }) => {
         console.error("Erro ao carregar agendamentos:", error);
         if (error.response?.status === 401) {
           localStorage.removeItem("token");
-          navigate("/login");
+          localStorage.removeItem("autenticado");
+          navigate("/login", { replace: true });
         }
       } finally {
         setLoading(false);
@@ -79,20 +72,20 @@ const Admin = ({ onVoltar, onLogout }) => {
     fetchAgendamentos();
   }, [navigate]);
 
+  // 🔹 Toast
   const showToast = (mensagem, tipo = "info") => {
     setToast({ mensagem, tipo });
     setTimeout(() => setToast(null), 3000);
   };
 
+  // 🔹 Atualiza status
   const atualizarStatus = async (id, novoStatus) => {
     try {
       const token = localStorage.getItem("token");
       await axios.patch(
         `${API_URL}/api/agendamento/${id}/status`,
         { status: novoStatus },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
 
       setAgendamentos((prev) =>
@@ -119,6 +112,7 @@ const Admin = ({ onVoltar, onLogout }) => {
     }
   };
 
+  // 🔹 Filtros e paginação
   const ativos = agendamentos.filter((a) =>
     ["Pendente", "Confirmado"].includes(a.status)
   );
@@ -129,58 +123,28 @@ const Admin = ({ onVoltar, onLogout }) => {
   );
 
   const lista = tipo === "historico" ? historico : ativos;
-  const paginaAtual = tipo === "historico" ? paginaHistorico : paginaAtivos;
-  const setPaginaAtual =
-    tipo === "historico" ? setPaginaHistorico : setPaginaAtivos;
-
+  const itensPorPagina = 5;
+  const [pagina, setPagina] = useState(1);
   const totalPaginas = Math.ceil(lista.length / itensPorPagina);
-  const indiceInicial = (paginaAtual - 1) * itensPorPagina;
-  const paginaItens = lista.slice(indiceInicial, indiceInicial + itensPorPagina);
+  const paginaItens = lista.slice((pagina - 1) * itensPorPagina, pagina * itensPorPagina);
 
-  const mudarPagina = (novaPagina) => {
-    if (novaPagina >= 1 && novaPagina <= totalPaginas) setPaginaAtual(novaPagina);
-  };
-
-  const getBotoes = (a) => {
-    const botoes = [];
-    if (a.status === "Pendente") {
-      botoes.push(
-        <button key="confirmar" onClick={() => atualizarStatus(a.id, 2)}>
-          ✅ Confirmar
-        </button>
-      );
-      botoes.push(
-        <button key="cancelar" onClick={() => atualizarStatus(a.id, 6)}>
-          ❌ Cancelar
-        </button>
-      );
-    } else if (a.status === "Confirmado") {
-      botoes.push(
-        <button key="finalizar" onClick={() => atualizarStatus(a.id, 7)}>
-          🏁 Finalizar
-        </button>
-      );
-      botoes.push(
-        <button key="cancelar" onClick={() => atualizarStatus(a.id, 6)}>
-          ❌ Cancelar
-        </button>
-      );
-    }
-    return botoes;
-  };
-
+  // 🔹 Navegação
   const handleVoltar = () => {
     navigate("/");
-    if (onVoltar) onVoltar();
+    onVoltar?.();
   };
 
   const handleLogoff = () => {
+    localStorage.removeItem("autenticado");
     localStorage.removeItem("token");
-    if (onLogout) onLogout();
+    localStorage.removeItem("usuarioId");
+    localStorage.removeItem("usuarioNome");
+    onLogout?.();
     showToast("Sessão encerrada com sucesso 👋", "sucesso");
-    setTimeout(() => navigate("/login"), 800);
+    setTimeout(() => navigate("/login", { replace: true }), 800);
   };
 
+  // 🔹 Renderização
   return (
     <div className="admin-page">
       <div className="top-buttons">
@@ -236,16 +200,25 @@ const Admin = ({ onVoltar, onLogout }) => {
                         {(a.servicos || []).map((s) => s.nomeServico).join(", ")}
                       </td>
                       <td>{new Date(a.dataHora).toLocaleString("pt-BR")}</td>
-                      <td
-                        className={`status ${a.status
-                          .toLowerCase()
-                          .replace(/\s/g, "-")}`}
-                      >
+                      <td className={`status ${a.status.toLowerCase().replace(/\s/g, "-")}`}>
                         {a.status}
                       </td>
                       <td>{a.observacao || "-"}</td>
                       <td>
-                        <div className="acoes-admin">{getBotoes(a)}</div>
+                        <div className="acoes-admin">
+                          {a.status === "Pendente" && (
+                            <>
+                              <button onClick={() => atualizarStatus(a.id, 2)}>✅ Confirmar</button>
+                              <button onClick={() => atualizarStatus(a.id, 6)}>❌ Cancelar</button>
+                            </>
+                          )}
+                          {a.status === "Confirmado" && (
+                            <>
+                              <button onClick={() => atualizarStatus(a.id, 7)}>🏁 Finalizar</button>
+                              <button onClick={() => atualizarStatus(a.id, 6)}>❌ Cancelar</button>
+                            </>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -257,9 +230,22 @@ const Admin = ({ onVoltar, onLogout }) => {
                   <p><strong>Cliente:</strong> {a.cliente}</p>
                   <p><strong>Serviços:</strong> {(a.servicos || []).map((s) => s.nomeServico).join(", ")}</p>
                   <p><strong>Data:</strong> {new Date(a.dataHora).toLocaleString("pt-BR")}</p>
-                  <p><strong>Status:</strong> <span className={`status ${a.status.toLowerCase().replace(/\s/g, "-")}`}>{a.status}</span></p>
+                  <p><strong>Status:</strong> {a.status}</p>
                   <p><strong>Obs:</strong> {a.observacao || "-"}</p>
-                  <div className="acoes-admin">{getBotoes(a)}</div>
+                  <div className="acoes-admin">
+                    {a.status === "Pendente" && (
+                      <>
+                        <button onClick={() => atualizarStatus(a.id, 2)}>✅ Confirmar</button>
+                        <button onClick={() => atualizarStatus(a.id, 6)}>❌ Cancelar</button>
+                      </>
+                    )}
+                    {a.status === "Confirmado" && (
+                      <>
+                        <button onClick={() => atualizarStatus(a.id, 7)}>🏁 Finalizar</button>
+                        <button onClick={() => atualizarStatus(a.id, 6)}>❌ Cancelar</button>
+                      </>
+                    )}
+                  </div>
                 </div>
               ))
             )
@@ -272,19 +258,11 @@ const Admin = ({ onVoltar, onLogout }) => {
 
         {lista.length > itensPorPagina && (
           <div className="paginacao">
-            <button
-              onClick={() => mudarPagina(paginaAtual - 1)}
-              disabled={paginaAtual === 1}
-            >
+            <button onClick={() => setPagina(pagina - 1)} disabled={pagina === 1}>
               ← Anterior
             </button>
-            <span>
-              Página {paginaAtual} de {totalPaginas}
-            </span>
-            <button
-              onClick={() => mudarPagina(paginaAtual + 1)}
-              disabled={paginaAtual === totalPaginas}
-            >
+            <span>Página {pagina} de {totalPaginas}</span>
+            <button onClick={() => setPagina(pagina + 1)} disabled={pagina === totalPaginas}>
               Próxima →
             </button>
           </div>
