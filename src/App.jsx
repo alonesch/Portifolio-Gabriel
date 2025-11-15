@@ -9,6 +9,7 @@ import "./styles/styles.css";
 function App() {
   const [autenticado, setAutenticado] = useState(false);
   const [credenciais, setCredenciais] = useState({ usuario: "", senha: "" });
+  const [loading, setLoading] = useState(false)
   const [erro, setErro] = useState("");
   const API_URL = import.meta.env.VITE_API_URL;
 
@@ -22,28 +23,36 @@ function App() {
     }
   }, []);
 
+
   // 🔹 Login
   const handleLogin = async (e) => {
     e.preventDefault();
-    setErro("");
+    setLoading(true);
 
     try {
       const response = await axios.post(`${API_URL}/api/login`, credenciais);
 
-      if (response.data.autenticado && response.data.token) {
-        localStorage.setItem("token", response.data.token);
-        localStorage.setItem("usuarioId", response.data.usuario.id);
-        localStorage.setItem("usuarioNome", response.data.usuario.nomeUsuario);
-        localStorage.setItem("barbeiroId", response.data.usuario.barbeiroId);
-        setAutenticado(true);
-      } else {
-        setErro("Usuário ou senha incorretos.");
-      }
+      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("usuarioId", response.data.usuario.id);
+      localStorage.setItem("usuarioNome", response.data.usuario.nomeUsuario);
+      localStorage.setItem("barbeiroId", response.data.usuario.barbeiroId);
+
+      setAutenticado(true);
+
     } catch (err) {
-      console.error("Erro ao conectar com o servidor:", err.message);
-      setErro("Erro ao conectar com o servidor.");
+      console.error("Houve um erro ao logar.", err.message);
+      setErro("Houve um erro ao logar.");
+    } finally {
+      setLoading(false);
     }
+    
+
+
   };
+
+
+
+
 
   // 🔹 Logout
   const handleLogout = () => {
@@ -85,7 +94,9 @@ function App() {
                     }
                     required
                   />
-                  <button type="submit">Entrar</button>
+                  <button className={`login-btn ${loading ? "loading" : ""}`} disabled={loading}>
+                    {loading ? <div className="spinner"></div> : "Entrar"}
+                  </button>
                   {erro && <p className="erro-login">{erro}</p>}
                 </form>
 
