@@ -90,7 +90,7 @@ const Admin = ({ onVoltar, onLogout }) => {
     try {
       const token = localStorage.getItem("token");
       await axios.patch(
-        `${API_URL}/api/agendamento/${id}/status`,
+        `${API_URL}/api/agendamento/status/${id}`,
         { status: novoStatus },
         { headers: { Authorization: `Bearer ${token}` } }
       );
